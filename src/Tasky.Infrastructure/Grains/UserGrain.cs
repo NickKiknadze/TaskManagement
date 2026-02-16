@@ -41,7 +41,6 @@ public class UserGrain : Grain, IUserGrain
     public Task UpdateStatusAsync(string status)
     {
         _logger.LogInformation("User {UserId} status updated to {Status}", this.GetPrimaryKeyLong(), status);
-        // In a real app, we might update state or notify other grains
         return Task.CompletedTask;
     }
 }

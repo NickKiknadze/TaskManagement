@@ -5,15 +5,23 @@ using Orleans.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("ProductionCorsPolicy", policy =>
+    {
+        policy.WithOrigins(builder.Configuration.GetValue<string>("Cors:AllowedOrigins")?.Split(',') ?? ["http://localhost:5173"])
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-// Auth
 builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -31,7 +39,6 @@ builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.JwtBearer
             IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtSettings.Secret))
         };
         
-        // SignalR Auth query string support
         options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
         {
              OnMessageReceived = context =>
@@ -58,12 +65,20 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<Tasky.Application.Interfaces.ICurrentUserService, Tasky.Api.Services.CurrentUserService>();
 
-// Orleans
 if (!builder.Environment.IsEnvironment("Testing"))
 {
     builder.Host.UseOrleans(silo =>
     {
-        silo.UseLocalhostClustering();
+        var clusteringProvider = builder.Configuration.GetValue<string>("Orleans:ClusteringProvider") ?? "Localhost";
+        
+        if (clusteringProvider == "Localhost")
+        {
+            silo.UseLocalhostClustering();
+        }
+        else
+        {
+        }
+        
         silo.Services.AddSerializer(serializerBuilder =>
         {
             serializerBuilder.AddJsonSerializer(isSupported: type => 
@@ -72,19 +87,32 @@ if (!builder.Environment.IsEnvironment("Testing"))
     });
 }
 
-// SignalR
 builder.Services.AddSignalR();
 builder.Services.AddScoped<Tasky.Application.Interfaces.ISignalRNotifier, Tasky.Api.Services.SignalRNotifier>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+else
+{
+    app.UseHsts();
+}
 
 app.UseHttpsRedirection();
+
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.Add("X-Frame-Options", "DENY");
+    context.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
+    context.Response.Headers.Add("Referrer-Policy", "no-referrer");
+    await next();
+});
+
+app.UseCors("ProductionCorsPolicy");
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -93,14 +121,13 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHub<Tasky.Api.Hubs.TaskHub>("/hubs/realtime");
 
-// Seeding
 if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Testing") || app.Configuration.GetValue<bool>("Seeding:Enabled")) 
 {
     using (var scope = app.Services.CreateScope())
     {
         var initialiser = scope.ServiceProvider.GetRequiredService<DbInitializer>();
         var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-        var defaultPassword = config["DefaultAdminPassword"] ?? "UpdatedPassw0rd!"; // Fallback
+        var defaultPassword = config["DefaultAdminPassword"] ?? "Aa!12345#"; 
         await initialiser.InitializeAsync(defaultPassword);
     }
 }

@@ -76,7 +76,6 @@ export function BoardView() {
         const taskId = Number(draggableId);
         const targetColumnId = Number(destination.droppableId);
 
-        // Optimistic update
         queryClient.setQueryData(['boards', id], (old: any) => {
             if (!old) return old;
 

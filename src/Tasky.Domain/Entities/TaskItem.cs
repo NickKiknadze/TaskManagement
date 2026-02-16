@@ -13,7 +13,7 @@ public class TaskItem : BaseEntity
     
     public Priority Priority { get; set; } = Priority.Medium;
     public DateTime? DueDate { get; set; }
-    public string? Estimate { get; set; } // e.g. "2h", "1d"
+    public string? Estimate { get; set; }
     
     public int? AssigneeId { get; set; }
     public User? Assignee { get; set; }

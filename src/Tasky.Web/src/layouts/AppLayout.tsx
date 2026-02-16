@@ -6,7 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSignalR } from '../contexts/SignalRContext';
 
 export function AppLayout() {
-    useSignalR(); // Ensure initialized 
+    useSignalR();
     const [opened, { toggle }] = useDisclosure();
     const { user, logout } = useAuth();
     const navigate = useNavigate();

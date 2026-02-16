@@ -15,15 +15,13 @@ public class AuthIntegrationTests : IClassFixture<CustomWebApplicationFactory>
     [Fact]
     public async Task Should_Register_And_Login_Successfully()
     {
-        // 1. Register
-        var registerRequest = new RegisterRequest("testuser", "Passw0rd123!");
+        var registerRequest = new RegisterRequest("testuser", "Aa!12345#");
         var registerResponse = await _client.PostAsJsonAsync("/api/auth/register", registerRequest);
         registerResponse.EnsureSuccessStatusCode();
         var registerResult = await registerResponse.Content.ReadFromJsonAsync<RegisterResponse>();
         Assert.NotNull(registerResult?.UserId);
 
-        // 2. Login
-        var loginRequest = new LoginRequest("testuser", "Passw0rd123!");
+        var loginRequest = new LoginRequest("testuser", "Aa!12345#");
         var loginResponse = await _client.PostAsJsonAsync("/api/auth/login", loginRequest);
         loginResponse.EnsureSuccessStatusCode();
         var loginResult = await loginResponse.Content.ReadFromJsonAsync<LoginResponse>();

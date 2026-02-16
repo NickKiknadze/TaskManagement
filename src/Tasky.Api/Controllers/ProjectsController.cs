@@ -12,7 +12,7 @@ namespace Tasky.Api.Controllers;
 public class ProjectsController : ControllerBase
 {
     private readonly IProjectService _projectService;
-    private readonly IBoardService _boardService; // For CreateBoard
+    private readonly IBoardService _boardService;
 
     public ProjectsController(IProjectService projectService, IBoardService boardService)
     {

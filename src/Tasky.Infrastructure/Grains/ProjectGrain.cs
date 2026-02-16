@@ -42,7 +42,6 @@ public class ProjectGrain : Grain, IProjectGrain
     public Task OnTaskAddedAsync(int taskId)
     {
         _logger.LogInformation("Task {TaskId} added to Project {ProjectId}", taskId, this.GetPrimaryKeyLong());
-        // Potential for high-level events or cache invalidation
         return Task.CompletedTask;
     }
 }

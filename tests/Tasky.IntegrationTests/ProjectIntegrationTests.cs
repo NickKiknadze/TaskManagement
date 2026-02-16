@@ -15,8 +15,7 @@ public class ProjectIntegrationTests : IClassFixture<CustomWebApplicationFactory
 
     private async Task AuthenticateAsync()
     {
-        // Login as Admin
-        var loginRequest = new LoginRequest("Admin", "YourStrong@Passw0rd");
+        var loginRequest = new LoginRequest("Admin", "Aa!12345#");
         var response = await _client.PostAsJsonAsync("/api/auth/login", loginRequest);
         response.EnsureSuccessStatusCode();
         var loginResult = await response.Content.ReadFromJsonAsync<LoginResponse>();
@@ -28,28 +27,24 @@ public class ProjectIntegrationTests : IClassFixture<CustomWebApplicationFactory
     {
         await AuthenticateAsync();
 
-        // 1. Create Project
         var createProjectRequest = new CreateProjectRequest("Test Project", "Description");
         var projectResponse = await _client.PostAsJsonAsync("/api/projects", createProjectRequest);
         projectResponse.EnsureSuccessStatusCode();
         var projectId = await projectResponse.Content.ReadFromJsonAsync<int>();
         Assert.True(projectId > 0);
 
-        // 2. Create Board
         var createBoardRequest = new CreateBoardRequest(projectId, "Test Board");
         var boardResponse = await _client.PostAsJsonAsync($"/api/projects/{projectId}/boards", createBoardRequest);
         boardResponse.EnsureSuccessStatusCode();
         var boardId = await boardResponse.Content.ReadFromJsonAsync<int>();
         Assert.True(boardId > 0);
 
-        // 3. Create Column
         var createColumnRequest = new CreateColumnRequest(boardId, "To Do", 1);
         var columnResponse = await _client.PostAsJsonAsync($"/api/boards/{boardId}/columns", createColumnRequest);
         columnResponse.EnsureSuccessStatusCode();
         var columnId = await columnResponse.Content.ReadFromJsonAsync<int>();
         Assert.True(columnId > 0);
         
-        // 4. Get Board Detail
         var detailResponse = await _client.GetAsync($"/api/boards/{boardId}");
         detailResponse.EnsureSuccessStatusCode();
         var detail = await detailResponse.Content.ReadFromJsonAsync<BoardDetailDto>();

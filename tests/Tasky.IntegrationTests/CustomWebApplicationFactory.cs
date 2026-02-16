@@ -19,7 +19,6 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
         builder.UseEnvironment("Testing");
         builder.ConfigureServices(services =>
         {
-            // Remove existing registrations
             var efServices = services.Where(d => 
                 d.ServiceType == typeof(DbContextOptions<ApplicationDbContext>) ||
                 d.ServiceType == typeof(DbContextOptions) ||
@@ -34,7 +33,6 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                 services.Remove(descriptor);
             }
 
-            // Add Mocks
             services.AddDbContext<ApplicationDbContext>(options => 
             {
                 options.UseInMemoryDatabase(_dbName);

@@ -4,25 +4,38 @@ services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: tasky-sql
+    restart: always
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=YourStrong@Passw0rd
+      - SA_PASSWORD=Aa!12345#
     ports:
       - "1434:1433"
+    healthcheck:
+      test: [ "CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"Aa!12345#\" -Q \"SELECT 1\" -C || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - sql_data:/var/opt/mssql
 
   redis:
     image: redis:latest
     container_name: tasky-redis
+    restart: always
     ports:
       - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - redis_data:/data
 
   redpanda:
     image: docker.redpanda.com/redpandadata/redpanda:latest
     container_name: tasky-redpanda
+    restart: always
     command:
       - redpanda start
       - --smp 1
@@ -38,8 +51,35 @@ services:
     ports:
       - "29092:29092"
       - "28082:28082"
+    healthcheck:
+      test: [ "CMD-SHELL", "rpk cluster status || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - redpanda_data:/var/lib/redpanda/data
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tasky-api
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      redpanda:
+        condition: service_healthy
+    ports:
+      - "5038:80"
+      - "7231:443"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=TaskyDb;User Id=sa;Password=Aa!12345#;TrustServerCertificate=True;
+      - ConnectionStrings__Redis=redis:6379
+      - ConnectionStrings__Kafka=redpanda:9092
+    restart: always
 
 volumes:
   sql_data:

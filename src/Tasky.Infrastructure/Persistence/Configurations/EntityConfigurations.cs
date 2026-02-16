@@ -150,7 +150,5 @@ public class TaskCommentConfiguration : IEntityTypeConfiguration<TaskComment>
             .WithMany()
             .HasForeignKey(tc => tc.AuthorId)
             .OnDelete(DeleteBehavior.NoAction);
-            
-        // Task relationship is already configured in TaskItemConfiguration
     }
 }
