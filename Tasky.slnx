@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Tasky.Api/Tasky.Api.csproj" />
+    <Project Path="src/Tasky.Application/Tasky.Application.csproj" />
+    <Project Path="src/Tasky.Domain/Tasky.Domain.csproj" />
+    <Project Path="src/Tasky.Infrastructure/Tasky.Infrastructure.csproj" />
+    <Project Path="src/Tasky.Worker/Tasky.Worker.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Tasky.IntegrationTests/Tasky.IntegrationTests.csproj" />
+    <Project Path="tests/Tasky.UnitTests/Tasky.UnitTests.csproj" />
+  </Folder>
+</Solution>

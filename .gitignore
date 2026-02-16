@@ -1,0 +1,65 @@
+# .NET
+[Bb]in/
+[Oo]bj/
+out/
+publish/
+[Ll]og/
+[Ll]ogs/
+*.log
+*.txt
+!README.md
+!architecture_notes.md
+
+# Visual Studio
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+.vsconfig
+
+# Rider
+.idea/
+*.sln.iml
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Node.js
+node_modules/
+dist/
+dist-ssr/
+*.local
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+.docker_data/
+sql_data/
+redis_data/
+redpanda_data/
+
+# Local configuration
+appsettings.local.json
+
+# Test results
+TestResults/
+*.tlog
+
+# IDE - VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Backup files
+*.bak
+*.tmp
